@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include "semaphore.h"
 #include <pthread.h>
+#include <unistd.h>
 
+int minSleep = 0, maxSleep = 3
 int counter = 0;
 int buffLen = 5;
 int buff[5];
@@ -38,6 +40,7 @@ int getBuffItem() {
 }
 
 void *countersTask(void *p) {
+    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
     fprintf(stdout, "Counter thread %d: received a message", *(int *)p);
     fprintf(stdout, "Counter thread %d: waiting to write", *(int *)p);
     sem_wait(&counters);
@@ -47,6 +50,7 @@ void *countersTask(void *p) {
 }
 
 void *monitorTask(void *p) {
+    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
     sem_wait(&counters);
     if (buffIsFull())
         fprintf(stdout, "Monitor thread: Buffer full!!");
@@ -64,6 +68,7 @@ void *monitorTask(void *p) {
 }
 
 void *collectorTask() {
+    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
     sem_wait(&counters);
     if (buffIsEmpty())
         fprintf(stdout, "Collector thread: nothing is in the buffer!");
@@ -77,7 +82,6 @@ void *collectorTask() {
     sem_post(&counters);
 }
 
-void
 int main() {
     int N = 10;
     pthread_t mCounter[N];
