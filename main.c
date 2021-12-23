@@ -4,12 +4,13 @@
 #include <pthread.h>
 #include <unistd.h>
 
-int minSleep = 2, maxSleep = 3;
+int minSleep = 1, maxSleep = 3;
 int counter = 0;
-int buffLen = 5;
-int buff[5];
+int buffLen = 7;
+int buff[7];
 int curr = 0;
 int valid = -1;
+int numOfItems = 0;
 
 sem_t buffItems;
 sem_t buffEmptySpaces;
@@ -17,18 +18,18 @@ sem_t counters;
 
 
 int buffIsFull() {
-    return curr == buffLen && valid == -1
-           || curr == valid - 1;
+    return buffLen == numOfItems;
 }
 
 
 int buffIsEmpty() {
-    return !(curr - valid + 1);
+    return !numOfItems;
 }
 
 void addToBuff(int item) {
     buff[curr++] = item;
     curr %= buffLen;
+    numOfItems++;
 }
 
 int getBuffItem() {
@@ -36,6 +37,7 @@ int getBuffItem() {
     if (valid == buffLen - 1)
         valid = -1;
 
+    numOfItems--;
     return item;
 }
 
@@ -82,7 +84,7 @@ void *collectorTask(void *p) {
         sem_wait(&buffItems);
         sem_wait(&counters);
         getBuffItem();
-        fprintf(stdout, "Collector thread: reading from the buffer at position %d\n", valid);
+        fprintf(stdout, "Collector thread: reading from the buffer at position %d\n", valid == -1 ? buffLen - 1: valid);
         sem_post(&buffEmptySpaces);
         sem_post(&counters);
     }
