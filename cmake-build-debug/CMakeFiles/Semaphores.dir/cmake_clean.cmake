@@ -1,9 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Semaphores.dir/main.c.obj"
-  "Semaphores.exe"
-  "Semaphores.exe.manifest"
+  "CMakeFiles/Semaphores.dir/main.c.o"
+  "Semaphores"
   "Semaphores.pdb"
-  "libSemaphores.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.

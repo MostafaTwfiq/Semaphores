@@ -6,7 +6,15 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/mosta/CLionProjects/Semaphores/main.c
+/home/mostafa/CLionProjects/Semaphores/main.c
 stdio.h
+-
+stdlib.h
+-
+semaphore.h
+/home/mostafa/CLionProjects/Semaphores/semaphore.h
+pthread.h
+-
+unistd.h
 -
 

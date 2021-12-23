@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-int minSleep = 0, maxSleep = 3
+int minSleep = 2, maxSleep = 3;
 int counter = 0;
 int buffLen = 5;
 int buff[5];
@@ -40,46 +40,52 @@ int getBuffItem() {
 }
 
 void *countersTask(void *p) {
-    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
-    fprintf(stdout, "Counter thread %d: received a message", *(int *)p);
-    fprintf(stdout, "Counter thread %d: waiting to write", *(int *)p);
-    sem_wait(&counters);
-    counter++;
-    fprintf(stdout, "Counter thread %d: now adding to counter, counter value=%d", *(int *)p, counter);
-    sem_post(&counters);
+    while(1) {
+        sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
+        fprintf(stdout, "Counter thread %d: received a message\n", *(int *) p);
+        fprintf(stdout, "Counter thread %d: waiting to write\n", *(int *) p);
+        sem_wait(&counters);
+        counter++;
+        fprintf(stdout, "Counter thread %d: now adding to counter, counter value=%d\n", *(int *) p, counter);
+        sem_post(&counters);
+    }
 }
 
 void *monitorTask(void *p) {
-    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
-    sem_wait(&counters);
-    if (buffIsFull())
-        fprintf(stdout, "Monitor thread: Buffer full!!");
-    sem_post(&buffItems);
+    while (1) {
+        sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
+        sem_wait(&counters);
+        if (buffIsFull())
+            fprintf(stdout, "Monitor thread: Buffer full!!\n");
+        sem_post(&counters);
 
-    sem_wait(&buffEmptySpaces);
-    fprintf(stdout, "Monitor thread: waiting to read counter");
-    sem_wait(&counters);
-    fprintf(stdout, "Monitor thread: reading a counter value of %d", counter);
-    addToBuff(counter);
-    fprintf(stdout, "Monitor thread: writing to buffer at position %d", curr - 1);
-    counter = 0;
-    sem_post(&buffItems);
-    sem_post(&counters);
+        sem_wait(&buffEmptySpaces);
+        fprintf(stdout, "Monitor thread: waiting to read counter\n");
+        sem_wait(&counters);
+        fprintf(stdout, "Monitor thread: reading a counter value of %d\n", counter);
+        addToBuff(counter);
+        fprintf(stdout, "Monitor thread: writing to buffer at position %d\n", curr - 1 < 0 ? 0 : curr - 1);
+        counter = 0;
+        sem_post(&buffItems);
+        sem_post(&counters);
+    }
 }
 
-void *collectorTask() {
-    sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
-    sem_wait(&counters);
-    if (buffIsEmpty())
-        fprintf(stdout, "Collector thread: nothing is in the buffer!");
-    sem_post(&buffItems);
+void *collectorTask(void *p) {
+    while(1) {
+        sleep((unsigned int) ((rand() % (maxSleep - minSleep + 1) + maxSleep)));
+        sem_wait(&counters);
+        if (buffIsEmpty())
+            fprintf(stdout, "Collector thread: nothing is in the buffer!\n");
+        sem_post(&counters);
 
-    sem_wait(&buffItems);
-    sem_wait(&counters);
-    getBuffItem();
-    fprintf(stdout, "Collector thread: reading from the buffer at position %d", valid);
-    sem_post(&buffEmptySpaces);
-    sem_post(&counters);
+        sem_wait(&buffItems);
+        sem_wait(&counters);
+        getBuffItem();
+        fprintf(stdout, "Collector thread: reading from the buffer at position %d\n", valid);
+        sem_post(&buffEmptySpaces);
+        sem_post(&counters);
+    }
 }
 
 int main() {
@@ -101,7 +107,7 @@ int main() {
     pthread_create(&mCollector, NULL, collectorTask, NULL);
 
     if (pthread_join(mMonitor, NULL)) {
-        fprintf(stderr, "Some thing went wrong.");
+        fprintf(stderr, "Some thing went wrong.\n");
         exit(-1);
     }
 
