@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2021.2.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\Semaphores.dir/objects.a
+C:\MinGW\bin\ar.exe cr CMakeFiles\Semaphores.dir/objects.a @CMakeFiles\Semaphores.dir\objects1.rsp
+C:\MinGW\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\Semaphores.dir/objects.a -Wl,--no-whole-archive -o Semaphores.exe -Wl,--out-implib,libSemaphores.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Semaphores.dir\linklibs.rsp
